@@ -69,7 +69,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         # adding flash message to show the toast message
-        flash(f'Account Created Succesfully for {form.username.data}', 'success')
+        flash(f'Account Created Successfully for {form.username.data}', 'success')
         # return to home page after successful operation.
         return redirect(url_for("home"))
     return render_template('register.html', title="Register", form=form)

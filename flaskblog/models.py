@@ -1,8 +1,9 @@
 from datetime import datetime
 
 from flask_login import UserMixin
+from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
 
-from flaskblog import db, login_manager
+from flaskblog import db, login_manager, app
 
 
 # this is used to grab the user id if the data is stored in the cache / session
@@ -21,7 +22,21 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
     posts = db.relationship('Post', backref='author', lazy=True)
 
+    def get_reset_token(self, expire_sec=1800):
+        s = Serializer(app.config['SECRET_KEY'], expire_sec)
+        return s.dumps({'user_id': self.id}).decode('utf-8')
+
+    @staticmethod
+    def verify_reset_token(self, token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
+
     # magic methods
+
     def __repr__(self):
         return f"User('{self.userName},{self.userEmail},{self.image_file}')"
 
